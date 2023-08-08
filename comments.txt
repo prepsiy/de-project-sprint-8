@@ -1,3 +1,41 @@
+На тесте происходило странное. 
+
+Что я делал:
+
+1) Запустил в Jupyter код из project8.py - висит awaitTermination()
+2) В другом окне Jupyter запустил чтение топика OUT - висит awaitTermination()
+3) Через терминал добавляю в топик IN одну запись
+
+kafkacat -b rc1b-2erh7b35n4j4v869.mdb.yandexcloud.net:9091 \
+-X security.protocol=SASL_SSL \
+-X sasl.mechanisms=SCRAM-SHA-512 \
+-X sasl.username="de-student" \
+-X sasl.password="ltcneltyn" \
+-X ssl.ca.location=/root/CA.pem \
+-t student.topic.cohort11.prepsiy_in \
+-K: \
+-P
+
+key:{"restaurant_id": "123e4567-e89b-12d3-a456-426614174000","adv_campaign_id": "123e4567-e89b-12d3-a456-426614174003","adv_campaign_content": "first campaign","adv_campaign_owner": "Ivanov Ivan Ivanovich","adv_campaign_owner_contact": "iiivanov@restaurant_id","adv_campaign_datetime_start": 0,"adv_campaign_datetime_end": 999999999999999,"datetime_created": 1659131516}
+
+4) Чтение OUT показывает, что на сообщение добавленное через Терминал в Кафку было записано 8 строк (OUT_console_2.jpg).
+В таблице PostgreSQL public.subscribers_feedback - 8 строк.
+Всё в порядке.
+
+5) Прерываю awaitTermination() из пункта 1.
+6) Выполняю пункт 1 с той же  spark-сессией и пункт 3. И вот тут начинаются странности:
+
+Чтение OUT показывает 16 строк (OUT_console_2.jpg)
+
+Я добавляю в IN запись с 1 restaurant_id, в таблице subscribers_restaurants - 8 записей с этим restaurant_id, но в топик OUT отправляются 16 строк. Как будто новые строки вместе с предыдщими.
+
+Если не прерывать awaitTermination() из пункта 1 и продолжать добавлять в топик по одной записи (пункт 3), то всё работает правильно - добавляются по 8 строк.
+
+Почему так?
+
+===
+
+
 Тестировал с помощью Терминала
 
 kafkacat -b rc1b-2erh7b35n4j4v869.mdb.yandexcloud.net:9091 \
